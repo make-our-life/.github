@@ -13,13 +13,14 @@
     "skipLibCheck": true,
     "baseUrl": "src", // 절대 경로를 사용하기 위한 Base 디렉토리를 설정한다.
     "paths": { // components 폴더를 절대 경로로 사용하기 위한 paths 설정
-      "components/*": ["components/*"], // components로 시작하면 자동으로 src/components가 된다.
-      "pages/*": ["pages/*"]
+      // "components/*": ["components/*"], // components로 시작하면 자동으로 src/components가 된다.
+      // "pages/*": ["pages/*"]
+      "*": ["*"] // 기본 매핑
     },
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
-    "isolatedModules": true,
+    "isolatedModules": false,
     "moduleDetection": "force",
     "noEmit": true,
 
