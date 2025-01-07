@@ -1,0 +1,24 @@
+import { FavoriteListItem } from '@src/types/interface'
+import React from 'react'
+import defaultProfileImage from '@src/assets/image/basic-profile-img.jpg'
+import './style.css';
+
+interface Props {
+    favoriteListItem: FavoriteListItem;
+}
+
+// component: Favorite List Item 컴포넌트트
+export default function FavoriteItem({favoriteListItem}:Props)  {
+    // properties
+    const {profileImage, nickname} = favoriteListItem;
+
+    // render: Favorite List Item 랜더링링
+    return (
+    <div className='favorite-list-item'>
+        <div className='favorite-list-item-profile-box'>
+            <div className='favorite-list-item-profile-image' style={{backgroundImage: `url(${profileImage ? profileImage : defaultProfileImage})`}}></div>
+        </div>
+        <div className='favorite-list-item-nickname'>{nickname}</div>
+    </div>
+  )
+}
