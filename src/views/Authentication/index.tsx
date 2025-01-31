@@ -1,9 +1,9 @@
-import React, { ChangeEvent, KeyboardEvent, useRef, useState } from 'react'
+import React, { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react'
 import './style.css'
 import InputBox from '@src/components/InputBox';
-import { SignInRequestDto } from '@src/apis/request/auth';
-import { signInRequest } from '@src/apis';
-import { SignInResponseDto } from '@src/apis/response/auth';
+import { SignInRequestDto, SignUpRequestDto } from '@src/apis/request/auth';
+import { signInRequest, signUpRequest } from '@src/apis';
+import { SignInResponseDto, SignUpResponseDto } from '@src/apis/response/auth';
 import { ResponseDto } from '@src/apis/response';
 import { useCookies } from 'react-cookie';
 import { MAIN_PATH } from '@src/constants';
@@ -149,7 +149,7 @@ export default function Authentication() {
     // state: 휴대폰 번호 참조 상태 
     const telNumberRef = useRef<HTMLInputElement | null>(null);
     // state: 회원가입 페이지 번호 상태
-    const [page, setPage] = useState<1 | 2>(2);
+    const [page, setPage] = useState<1 | 2>(1);
     // state: 이메일 상태 
     const [email, setEmail] = useState<string>('');
     // state: 패스워드 상태 
@@ -195,6 +195,35 @@ export default function Authentication() {
     // state: 패스워드 확인 버튼 아이콘 상태 
     const [passwordCheckButtonIcon, setPasswordCheckButtonIcon] = useState<'eye-light-off-icon' | 'eye-light-on-icon'>('eye-light-off-icon'); 
 
+    // function: sign up
+    const signUpResponse = (responseBody: SignUpResponseDto | ResponseDto | null) => {
+      if (!responseBody) {
+        alert('네트워크 이상입니다.');
+        return;
+      }
+      const { code } = responseBody;
+      if(code === 'DE') {
+        setEmailError(true);
+        setEmailErrorMessage('중복되는 이메일 주소입니다.');
+        setPage(1);
+      }
+      if(code === 'DN') {
+        setNicknameError(true);
+        setNicknameErrorMessage('중복되는 닉네임입니다.');
+      }
+      if(code === 'DT') {
+        setTelNumberError(true);
+        setTelNumberErrorMessage('중복되는 핸드폰 번호호입니다.');
+      }
+      if(code === 'VF') alert('모든 값을 입력하세요.');
+      if(code === 'DBE') alert('데이터베이스 오류입니다.');
+      
+      if(code !== 'SU') return;
+      
+      setView('sign-in');
+      
+    }
+
 /**
  * ============================ 변경 이벤트 모음 ===================
  * 
@@ -223,14 +252,14 @@ export default function Authentication() {
     // event handler: 닉네임 변경 이벤트 처리 
     const onNicknameChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
       const {value} = event.target;
-      setPasswordCheck(value);
+      setNickname(value);
       setNicknameError(false);
       setNicknameErrorMessage('');
     }
     // event handler: 핸드폰 번호 변경 이벤트 처리 
     const onTelNumberChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
       const {value} = event.target;
-      setPasswordCheck(value);
+      setTelNumber(value);
       setTelNumberError(false);
       setTelNumberErrorMessage('');
     }
@@ -288,7 +317,49 @@ export default function Authentication() {
     }
     // event handler: 회원가입 버튼 클릭 이벤트 처리 
     const onSignUpButtonClickHandler = () => {
-      alert('회원가입 버튼 클릭');
+      // 1. 회원가입 유효성 검증
+      const emailPattern = /^[a-zA-Z0-9]*@([-.]?[a-zA-Z0-9])*\.[a-zA-Z]{2,4}$/;
+      const isEmailPattern = emailPattern.test(email);
+      if(!email) {// 이메일 존재하지 않으면 에러 메시지 발생
+        setEmailError(true);
+        setEmailErrorMessage('이메일 주소 형식이 맞지 않습니다.');
+      } 
+      const isCheckedPassword = password.trim().length > 8
+      if(!isCheckedPassword) {
+        setPasswordError(true);
+        setPasswordErrorMessage('비밀번호 8자 시상 입력해주세요.');
+      }
+      const isEqualPassword = password === passwordCheck;
+      if(!isEqualPassword) {
+        setPasswordCheckError(true);
+        setPasswordCheckErrorMessage('비밀번호가 일치하지 않습니다.');
+      }
+      if(!isEmailPattern || !isCheckedPassword || !isEqualPassword) {
+        setPage(1);
+        return;
+      };
+      // 닉네임 존재 검증
+      const hasNickname = nickname.trim().length !== 0;
+      if(!hasNickname){
+        setNicknameError(true);
+        setNicknameErrorMessage('닉네임을 입력해주세요.');
+      }
+      // 폰 번호 검증증
+      const telNumberPattern = /^[0-9]{11,13}$/;
+      const isTelNumberPattern = telNumberPattern.test(telNumber);
+      if(!isTelNumberPattern) {
+        setTelNumberError(true);
+        setTelNumberErrorMessage('숫자만 입력해주세요');
+      }
+      // 개인 정보 동의 여부 검증
+      if(!agreedPersonal) setAgreedPersonalError(true);
+      
+      if(!hasNickname || !isTelNumberPattern || !agreedPersonal) return;
+
+      const requestBody: SignUpRequestDto = {
+        email, password, nickname, telNumber, agreedPersonal
+      }
+      signUpRequest(requestBody).then(signUpResponse);
     }
     // event handler: 로그인 링크 클릭 이벤트 처리 
     const onSignInLinkClickHandler = () => {
@@ -331,8 +402,13 @@ export default function Authentication() {
       if(event.key !== 'Enter') return;
       onSignUpButtonClickHandler();
     }
-    // 
-
+    // effect: 페이지가 변경될 때 마다 실행될 함수 
+    useEffect(() => {
+      if (page === 2) {
+        if (!nicknameRef.current) return;
+        nicknameRef.current.focus();
+      }
+    }, [page])
 
     // render: sign up card 컴포넌트 랜더링 
     return (

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { SignUpRequestDto, SignInRequestDto } from "./request/auth";
-import { SignInResponseDto } from "./response/auth";
+import { SignInResponseDto, SignUpResponseDto } from "./response/auth";
 import { ResponseDto } from "./response";
 
 const DOMAIN = 'http://localhost:4000'
@@ -26,5 +26,15 @@ export const signInRequest = async (requsetBody: SignInRequestDto) => {
 }
 
 export const signUpRequest = async (requsetBody: SignUpRequestDto) => {
-
+    const result = await axios.post(SIGN_UP_URL(), requsetBody)
+        .then(response => {
+            const responseBody: SignUpResponseDto = response.data;
+            return responseBody;
+        })
+        .catch(error => {
+            if(!error.response.data) return null;   // response 데이터가 없으면 null 리턴
+            const responseBody: ResponseDto = error.response.data;
+            return responseBody;
+        })
+        return result;
 }

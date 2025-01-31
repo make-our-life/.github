@@ -6,6 +6,7 @@ enum ResponseCode {
     VALIDATION_FAILED = "VF",
     DUPLICATE_EMAIL = "DE",
     DUPLICATE_NICKNAME = "DN",
+    DUPLICATE_TELNUMBER = "DT",
     NOT_EXISTED_USER = "NU",
     NOT_EXSITED_BOARD = "NB",
 
