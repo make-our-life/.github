@@ -112,6 +112,7 @@ export default function Header() {
     // event handler: 로그아웃 버튼 클릭 이벤트 처리  
     const onSignOutButtonClickHandler = () => {
       resetLoginUser();
+      setCookie('accessToken', '', {path: MAIN_PATH(), expires: new Date()})
       navigate(MAIN_PATH());
     }
     // event handler: 로그인인 버튼 클릭 이벤트 처리  
@@ -139,9 +140,10 @@ export default function Header() {
       
     }
 
+
     if(title && content)
     // render: 업로드 버튼 컴포넌트 랜더링 
-    return <div className='black-button' onClick={onSignInButtonClickHandler}>{'업로드'}</div>
+    return <div className='black-button' onClick={onUploadButtonCLickHandler}>{'업로드'}</div>
     // render: 업로드 불가 버튼 컴포넌트 랜더링 
     return <div className='disable-button'>{'업로드'}</div>
   }
@@ -162,7 +164,12 @@ export default function Header() {
     setBoardUpdatePage(isBoardUpdatePage);
     const isUserPage = pathname.startsWith(USER_PATH(''));
     setUserPage(isUserPage);
-  }, [pathname])
+  }, [pathname]);
+
+  // effect: loginUser 상태가 null이 아니면 loginUser에 값을 부여
+  useEffect(() => {
+    setLogin(loginUser !== null);
+  }, [loginUser]);
 
   // render: Header Layout 렌더링
   return (

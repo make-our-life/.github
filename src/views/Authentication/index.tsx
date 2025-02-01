@@ -46,7 +46,7 @@ export default function Authentication() {
       const {code} = responseBody;
       if (code === 'DBE') alert('데이터베이스 오류');
       if (code === 'SF' || code === 'VF') setError(true);
-      if (code === 'SU') return;
+      // if (code === 'SU') return;
 
       const { token, expirationTime } = responseBody as SignInResponseDto;
       const now = new Date().getTime();
@@ -74,6 +74,7 @@ export default function Authentication() {
     const onSignInButtonClickHandler = () => {
       const requestBody: SignInRequestDto = {email, password};
       signInRequest(requestBody).then(signInResponse);
+      
     } 
 
     // event handler: 회원가입 링크 클릭 이벤트 처리 
