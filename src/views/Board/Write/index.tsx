@@ -1,6 +1,9 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import './style.css'
-import { useBoardStore } from '@src/stores';
+import { useBoardStore, useLoginUserStore } from '@src/stores';
+import { useNavigate } from 'react-router-dom';
+import { MAIN_PATH } from '@src/constants';
+import { useCookies } from 'react-cookie';
 
 // component: 게시물 작성 화면 컴포넌트
 export default function BoardWrite() {
@@ -18,8 +21,14 @@ export default function BoardWrite() {
   const {boardImageFileList, setBoardImageFileList} = useBoardStore();
   const {resetBoard} = useBoardStore();
 
+  // state: 쿠키 상태 
+  const [cookies, setCookies] = useCookies();
+
   // state: 게시물 이미지 미리보기 URL 상태
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+
+  // function: 네비게이트 함수 
+  const navigate = useNavigate();
 
   // event handler: 제목 변경 이벤트 처리 
   const onTitleChangeHandler = (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -69,21 +78,29 @@ export default function BoardWrite() {
   }
   // event handler: 이미지 닫기 버튼 클릭 이벤트 처리 
   const onImageCloseButtonClickHandler = (deleteIndex: number) => {
+    // imageInputRef.current에 type="file" 요소가 존재하는지 확인
     if(!imageInputRef.current) return;
-    imageInputRef.current.value = '';
+    imageInputRef.current.value = ''; // input 값 초기화(같은 파일 중복 업로드로 인식하지 않게 하기 위함)
 
+    /**
+     * 업로드된 이미지 URL 제거 
+     * imageUrls : 미리보기용으로 저장된 이미지 URL 리스트
+     * filter() : deleteIndex에 해당하는 URL을 제외한 새로운 배열 생성(삭제) */ 
     const newImageUrls = imageUrls.filter((url, index) => index !== deleteIndex);
     setImageUrls(newImageUrls);
 
+    // 실제로 업로드한 파일 객체 리스트(boardImageFileList)에서도 삭제
     const newBoardImageFileList = boardImageFileList.filter((file, index) => index !== deleteIndex);
     setBoardImageFileList(newBoardImageFileList);
-
-    if(!imageInputRef.current) return;
-    imageInputRef.current.value = '';
   }
-
+  
   // effect: 마운트 실행 함수 
   useEffect(() => {
+    const accessToken = cookies.accessToken;
+    if(!accessToken) {  // 로그인이 안되어있으면 메인 화면으로
+      navigate(MAIN_PATH());
+      return; 
+    }
     resetBoard();
   }, []);
 

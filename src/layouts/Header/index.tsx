@@ -4,6 +4,10 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { AUTH_PATH, BOARD_DETAIL_PATH, BOARD_PATH, BOARD_UPDATE_PATH, BOARD_WRITE_PATH, MAIN_PATH, SEARCH_PATH, USER_PATH } from '@src/constants';
 import { useCookies } from 'react-cookie';
 import { useBoardStore, useLoginUserStore } from '@src/stores';
+import { fileUploadRequest, postBoardRequest } from '@src/apis';
+import PostBoardRequestDto from '@src/apis/request/board/post-board.request.dto';
+import { PostBoardResponseDto } from '@src/apis/response/board';
+import { ResponseDto } from '@src/apis/response';
 
 // component: Header Layout
 export default function Header() {
@@ -135,9 +139,40 @@ export default function Header() {
     // state: 게시물 상태
     const { title, content, boardImageFileList, resetBoard } = useBoardStore();
 
+    // function: post board response 처리 함수 
+    const postBoardResponse = (responseBody: PostBoardResponseDto | ResponseDto | null) => {
+      if(!responseBody) return;
+      const { code } = responseBody;
+      if(code === 'DBE') alert('데이터베이스 오류');
+      if(code === 'AF' || code === 'NU') navigate(AUTH_PATH());
+      if(code === 'VF') alert('제목과 내용은 필수입니다.');
+      if(code !== 'SU') return;
+
+      resetBoard(); 
+      if(!loginUser) return;
+      const {email} = loginUser;
+      navigate(USER_PATH(email));
+    }
+
     // event handler: 업로드 버튼 클릭 이벤트 처리 함수 
-    const onUploadButtonCLickHandler = () => {
-      
+    const onUploadButtonCLickHandler = async () => {
+      const accessToken = cookies.accessToken;
+      if(!accessToken) return;
+
+      const boardImageList: string[] = []; // boardImageFileList 반복하면서 URL 담아주기
+
+      for(const file of boardImageFileList) {
+        const data = new FormData();
+        data.append('file', file);
+
+        const url = await fileUploadRequest(data);
+        if (url) boardImageList.push(url);
+      }
+
+      const requestBody: PostBoardRequestDto = {
+        title, content, boardImageList
+      }
+      postBoardRequest(requestBody, accessToken).then(postBoardResponse);
     }
 
 
