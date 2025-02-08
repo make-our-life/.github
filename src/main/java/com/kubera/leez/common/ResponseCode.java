@@ -11,7 +11,7 @@ public interface ResponseCode {
     String DUPLICATE_EMAIL = "DE";
     String DUPLICATE_NICKNAME = "DN";
     String NOT_EXISTED_USER = "NU";
-    String NOT_EXSITED_BOARD = "NB";
+    String NOT_EXISTED_BOARD = "NB";
 
     // HTTP status 401
     String SIGN_IN_FAIL = "SF";

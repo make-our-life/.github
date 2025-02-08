@@ -8,7 +8,7 @@ enum ResponseCode {
     DUPLICATE_NICKNAME = "DN",
     DUPLICATE_TELNUMBER = "DT",
     NOT_EXISTED_USER = "NU",
-    NOT_EXSITED_BOARD = "NB",
+    NOT_EXISTED_BOARD = "NB",
 
     // HTTP status 401
     SIGN_IN_FAIL = "SF",

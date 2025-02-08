@@ -9,7 +9,7 @@ public class ResponseMessage {
         String DUPLICATE_EMAIL = "Duplicate Email";
         String DUPLICATE_NICKNAME = "Duplicate Nickname";
         String NOT_EXISTED_USER = "This user does not exist";
-        String NOT_EXSITED_BOARD = "This board does not exist";
+        String NOT_EXISTED_BOARD = "This board does not exist";
     
         // HTTP status 401
         String SIGN_IN_FAIL = "Login information mismatch";
