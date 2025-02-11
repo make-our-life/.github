@@ -94,7 +94,7 @@ export default function BoardDetail() {
             </div>
           </div>
         </div>
-        <div className='board-detail-bottom-favortie-box'>
+        <div className='board-detail-bottom-favorite-box'>
           <div className='board-detail-bottom-favorite-container'>
             <div className='board-detail-bottom-favorite-title'>{'좋아요 '}<span className='emphasis'>{'12'}</span></div>
             <div className='board-detail-bottom-favorite-contents'>
